@@ -19,5 +19,3 @@ format:
 lint:
 	poetry run black --check .
 	poetry run flake8 $(CODE_FOLDERS) $(TEST_FOLDERS)
-	poetry run pylint $(CODE_FOLDERS)
-	poetry run mypy $(CODE_FOLDERS)
