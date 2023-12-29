@@ -1,7 +1,6 @@
-from datetime import datetime
-from typing import Any, Optional
+from typing import Optional
 from pydantic import BaseModel
-from src.homework.types import Tags
+from src.homework.tps import Tags
 
 
 class User(BaseModel):
@@ -19,8 +18,13 @@ class UserInfo(BaseModel):
     token: str
 
 
+class UserInfoAuth(BaseModel):
+    login: str
+    password: str
+
+
 class CreateOrUpdatePost(BaseModel):
-    post_id: Optional[Any]
+    post_id: Optional[int]
     name: str
     text: str
     tags: list[Tags]
@@ -31,12 +35,12 @@ class CreateOrUpdatePost(BaseModel):
 
 
 class GetPosts(BaseModel):
-    author_id: Optional[Any]
+    author_id: Optional[int]
     tags: list[Tags]
     name_search: Optional[str]
     pagination_current: int
 
 
 class DeletePost(BaseModel):
-    post_id: Any
+    post_id: int
     token: str

@@ -1,5 +1,5 @@
 import pytest
-from src.homework import token, main, types, db_mock_methods
+from src.homework import tkn as token, main, tps as types, db_mock_methods
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 from datetime import datetime, timedelta
@@ -68,18 +68,14 @@ def test_registaration_and_authorization(mocker):
         assert response.status_code == 200
         assert response.json() != jwt_token
 
-    user_info = {
-        "login": "login",
-        "password": "pas",
-        "token": jwt_token
-    }
+    user_info = {"login": "login", "password": "pas", "token": jwt_token}
 
     response = client.post("/authorization", json=user_info)
 
     assert response.status_code == 400
     assert response.text == '{"detail":"Bad password"}'
 
-    user_info['login'] = "log"
+    user_info["login"] = "log"
     response = client.post("/authorization", json=user_info)
 
     assert response.status_code == 400
@@ -97,22 +93,45 @@ def test_create_post():
         "token": jwt_token,
         "new_likes": None,
         "new_dislikes": None,
-        "new_comments": []
+        "new_comments": [],
     }
     res = client.post("/create_post", json=body)
     assert res.status_code == 200
 
 
-def test_delete_post():
+def test_delete_post(mocker):
     jwt_token = token.make_token("123")
 
-    body = {
-        "post_id": "123",
-        "token": jwt_token
-    }
+    body = {"post_id": "123", "token": jwt_token}
+
+    post_info = types.Post(
+        name="name",
+        text="text",
+        author_id="123",
+        tags=[],
+        comments=[],
+        likes=0,
+        dislikes=0,
+    )
+
+    mocker.patch.object(db_mock_methods, "find_post", return_value=post_info)
     res = client.post("/delete_post", json=body)
 
     assert res.status_code == 200
+
+    post_info.author_id = "124"
+
+    mocker.patch.object(db_mock_methods, "find_post", return_value=post_info)
+    res = client.post("/delete_post", json=body)
+
+    assert res.status_code == 400
+
+    post_info = None
+
+    mocker.patch.object(db_mock_methods, "find_post", return_value=post_info)
+    res = client.post("/delete_post", json=body)
+
+    assert res.status_code == 400
 
 
 def test_update_post(mocker):
@@ -126,7 +145,7 @@ def test_update_post(mocker):
         "token": jwt_token,
         "new_likes": 3,
         "new_dislikes": None,
-        "new_comments": ["comment"]
+        "new_comments": ["comment"],
     }
 
     res = client.post("/update_post", json=body)
@@ -142,7 +161,7 @@ def test_update_post(mocker):
         tags=[],
         comments=[],
         likes=0,
-        dislikes=0
+        dislikes=0,
     )
     mocker.patch.object(db_mock_methods, "find_post", return_value=db_post)
     db_user = types.User(
@@ -153,7 +172,7 @@ def test_update_post(mocker):
         is_admin=False,
         skils=[],
         company=None,
-        posts_ids_to_names={}
+        posts_ids_to_names={},
     )
     mocker.patch.object(db_mock_methods, "find_user", return_value=db_user)
 
@@ -167,7 +186,7 @@ def test_get_posts():
         "author_id": "123",
         "tags": [1],
         "name_search": "help",
-        "pagination_current": 0
+        "pagination_current": 0,
     }
 
     res = client.post("/get_posts", json=body)
