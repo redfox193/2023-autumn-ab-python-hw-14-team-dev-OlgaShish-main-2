@@ -11,7 +11,7 @@ update:
 	poetry install --no-root
 
 test:
-	pytest $(TEST_FOLDER)
+	pytest $(TEST_FOLDER) --cov=$(CODE_FOLDERS)
 
 format:
 	poetry run black .
